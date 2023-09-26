@@ -241,6 +241,7 @@ bool Client::init_methods() {
   methods_.emplace("editmessagecaption", &Client::process_edit_message_caption_query);
   methods_.emplace("editmessagereplymarkup", &Client::process_edit_message_reply_markup_query);
   methods_.emplace("deletemessage", &Client::process_delete_message_query);
+  methods_.emplace("getmessage", &Client::process_get_message_query);
   methods_.emplace("createinvoicelink", &Client::process_create_invoice_link_query);
   methods_.emplace("setgamescore", &Client::process_set_game_score_query);
   methods_.emplace("getgamehighscores", &Client::process_get_game_high_scores_query);
@@ -8598,6 +8599,27 @@ td::Status Client::process_delete_message_query(PromisedQueryPtr &query) {
                 [this](int64 chat_id, int64 message_id, PromisedQueryPtr query) {
                   send_request(make_object<td_api::deleteMessages>(chat_id, td::vector<int64>{message_id}, true),
                                td::make_unique<TdOnOkQueryCallback>(std::move(query)));
+                });
+  return td::Status::OK();
+}
+
+td::Status Client::process_get_message_query(PromisedQueryPtr &query) {
+  auto chat_id = query->arg("chat_id");
+  auto message_id = get_message_id(query.get());
+
+  if (chat_id.empty()) {
+    return td::Status::Error(400, "Chat identifier is not specified");
+  }
+
+  if (message_id == 0) {
+    return td::Status::Error(400, "Message identifier is not specified");
+  }
+
+  check_message(chat_id, message_id, false, AccessRights::Read, "message", std::move(query),
+                [this](int64 chat_id, int64 message_id, PromisedQueryPtr query) {
+                  auto message_info = get_message(chat_id, message_id, false);
+                  CHECK(message_info != nullptr);
+                  answer_query(JsonMessage(message_info, true, "message", this), std::move(query));
                 });
   return td::Status::OK();
 }
