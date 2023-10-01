@@ -11270,7 +11270,7 @@ td::string Client::get_local_file_path(td::Slice file_uri) {
 td_api::object_ptr<td_api::InputFile> Client::get_input_file(const Query *query, td::Slice field_name,
                                                              td::Slice file_id, bool force_file) const {
   if (!file_id.empty()) {
-    if (parameters_->local_mode_) {
+    if (parameters_->local_mode_ && false) {
       td::Slice file_protocol{"file:/"};
       if (td::begins_with(file_id, file_protocol)) {
         return make_object<td_api::inputFileLocal>(get_local_file_path(file_id.substr(file_protocol.size())));
@@ -18638,7 +18638,7 @@ void Client::json_store_file(td::JsonObjectScope &object, const td_api::file *fi
     object("file_size", file->size_);
   }
   if (with_path && file->local_->is_downloading_completed_) {
-    if (parameters_->local_mode_) {
+    if (parameters_->local_mode_ && false) {
       json_store_bytes(object, "file_path", file->local_->path_, td::Slice());
     } else {
       td::Slice relative_path = td::PathView::relative(file->local_->path_, files_dir_, true);
