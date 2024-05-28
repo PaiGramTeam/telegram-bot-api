@@ -561,7 +561,7 @@ class Client final : public WebhookActor::Callback {
   td::Result<object_ptr<td_api::inputMessageInvoice>> get_input_message_invoice(const Query *query) const;
 
   static object_ptr<td_api::messageSendOptions> get_message_send_options(bool disable_notification,
-                                                                         bool protect_content);
+                                                                         bool protect_content, int64 effect_id);
 
   static td::Result<td::vector<object_ptr<td_api::formattedText>>> get_poll_options(const Query *query);
 
@@ -648,6 +648,7 @@ class Client final : public WebhookActor::Callback {
   td::Status process_delete_messages_query(PromisedQueryPtr &query);
   td::Status process_get_message_query(PromisedQueryPtr &query);
   td::Status process_create_invoice_link_query(PromisedQueryPtr &query);
+  td::Status process_refund_star_payment_query(PromisedQueryPtr &query);
   td::Status process_set_game_score_query(PromisedQueryPtr &query);
   td::Status process_get_game_high_scores_query(PromisedQueryPtr &query);
   td::Status process_answer_web_app_query_query(PromisedQueryPtr &query);
@@ -922,6 +923,7 @@ class Client final : public WebhookActor::Callback {
     object_ptr<td_api::ReplyMarkup> reply_markup;
     td::string business_connection_id;
     int64 sender_business_bot_user_id = 0;
+    int64 effect_id = 0;
 
     bool can_be_saved = false;
     bool is_automatic_forward = false;
